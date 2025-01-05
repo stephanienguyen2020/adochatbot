@@ -166,18 +166,6 @@ src/
     └── global.d.ts         # TypeScript declarations
 ```
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 🚀 Future Enhancements & Roadmap
 
 ### 🔍 Enhanced RAG Capabilities
@@ -233,9 +221,14 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 > **Note:** This roadmap is dynamic and will be updated based on user feedback and platform needs.
 
-### Key Components
+## 🤝 Contributing
 
-- **API Layer**: Handles chat interactions and RAG integration
-- **UI Components**: Modular components for the chat interface
-- **RAG System**: Document processing and retrieval pipeline
-- **State Management**: Custom hooks for chat functionality
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
