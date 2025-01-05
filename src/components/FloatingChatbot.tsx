@@ -38,6 +38,7 @@ export function FloatingChatbot() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -153,23 +154,94 @@ export function FloatingChatbot() {
     }
   };
 
-  const handleSendMessage = () => {
-    if (inputText.trim()) {
-      const newMessage: Message = {
-        id: Date.now(),
-        text: inputText.trim(),
-        sender: "user",
-      };
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setInputText("");
-      setTimeout(() => {
-        const botResponse: Message = {
-          id: Date.now(),
-          text: "I'm an AI assistant. How can I help you?",
-          sender: "bot",
-        };
-        setMessages((prevMessages) => [...prevMessages, botResponse]);
-      }, 1000);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSendMessage = async () => {
+    if (!inputText.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now(),
+      text: inputText.trim(),
+      sender: "user",
+    };
+    setMessages((prev) => [...prev, userMessage]);
+    setInputText("");
+
+    const botMessageId = Date.now() + 1;
+    const botMessage: Message = {
+      id: botMessageId,
+      text: "",
+      sender: "bot",
+    };
+    setMessages((prev) => [...prev, botMessage]);
+    setIsStreaming(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: userMessage.text }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      const reader = response.body.getReader();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = new TextDecoder().decode(value);
+        const lines = chunk.split("\n");
+
+        lines.forEach((line) => {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(5));
+              setMessages((prevMessages) =>
+                prevMessages.map((msg) =>
+                  msg.id === botMessageId
+                    ? { ...msg, text: data.message.content.parts[0] }
+                    : msg
+                )
+              );
+            } catch (e) {
+              console.error("Error parsing SSE data:", e);
+            }
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === botMessageId
+            ? {
+                ...msg,
+                text: "Sorry, I encountered an error. Please try again later.",
+              }
+            : msg
+        )
+      );
+    } finally {
+      setIsStreaming(false);
     }
   };
 
@@ -217,11 +289,13 @@ export function FloatingChatbot() {
         className="pl-12 pr-20 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-400"
         value={inputText}
         onChange={(e) => setInputText(e.target.value)}
-        onKeyPress={(e) => {
-          if (e.key === "Enter") {
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
             handleSendMessage();
           }
         }}
+        disabled={isStreaming}
       />
       <div className="absolute right-0 top-0 h-full flex items-center">
         <Button
