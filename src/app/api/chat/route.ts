@@ -1,5 +1,7 @@
 import { OpenAI } from "openai";
 import { NextRequest, NextResponse } from "next/server";
+import { SYSTEM_PROMPT } from "./prompts";
+import { vectorStore, performSimilaritySearch } from "@/lib/vectorstore";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -27,14 +29,7 @@ export async function POST(req: NextRequest) {
             messages: [
               {
                 role: "system",
-                content: `You are an AI assistant focused on helping users with their questions.
-                Your responses should be:
-                - Professional and friendly
-                - Concise yet informative
-                - Well-structured with clear explanations
-                - Focused on providing practical solutions
-                
-                When appropriate, use markdown formatting to improve readability.`,
+                content: SYSTEM_PROMPT,
               },
               { role: "user", content: message },
             ],

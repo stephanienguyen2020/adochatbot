@@ -1,0 +1,245 @@
+Marginfi - A new liquidity layer for performant DeFi. A liquidity layer built for finance. Access native yield, embedded risk systems, and off-chain data plug-ins
+
+Welcome to marginfi
+marginfi is a fully-decentralized borrowing and lending protocol built on Solana. With marginfi, you can access native yield, embedded risk systems, and off-chain data plug-ins all in one place. Use marginfi to access the margin you need, when you need it.
+
+Features
+End-to-End Risk Engine: Constantly monitors the health of each individual bank, covering the entire protocol's risk comprehensively.
+In-House Liquidators: While marginfi has in-house liquidators, the protocol also encourages and includes a significant number of external liquidators to ensure a robust and efficient liquidation process.
+Market Depth and Recovery Modeling: Gathers data to model market depth and recovery time, enabling predictions of future liquidity in various market scenarios.
+Dynamic Risk System: Plans to implement live bank updates directly from risk models for a dynamic and real-time risk management system.
+Global Borrowing and Lending: The protocol enables borrowing and lending of margin under a unified global context, streamlining the process for traders.
+Leverage Trading: marginfi supports trading with leverage, empowering traders to maximize their market participation.
+Comprehensive Market Access: Traders can optimize their financial exposure across over 100 DeFi projects on Solana, including spot, futures, and options markets.
+
+
+Introduction
+Learn about the core concepts of decentralized borrowing and lending on marginfi. On this page, we will cover key topics that you should be aware of as a marginfi user. Let's dive in!
+
+Lending and Borrowing
+The marginfi protocol allows you to do two things with your Solana crypto tokens: lend them and borrow them. You lend your tokens to earn yield on them, and borrow tokens using the tokens you've lent as collateral. This feature suite is packaged into a user-friendly application called mrgnlend.
+Remember: In order to borrow tokens through marginfi, you must first supply tokens to any of marginfi's supported asset pools. This is because marginfi is an overcollateralized borrowing-lending protocol, meaning that you need to provide collateral worth more than the amount you intend to borrow.
+This ensures the security and stability of the protocol by mitigating the risk of default. When you supply tokens, you are effectively contributing to the liquidity pool, making it possible for others to borrow and for you to earn yield on your supplied assets.
+
+Fees and Yield
+Spead Fees
+marginfi takes a 12.5% interest rate spread fee on $USDC, $USDT and $SOL, and a 13.5% interest rate spread fee for every other asset.
+An interest rate spread fee is the difference between the borrowing and lending rates that the protocol charges. Meaning if you were borrowing $USDC at 10% APY and lenders are receiving 8% APY, marginfi would take 12.5% of that 2% spread as the fee.
+Lending Yield
+marginfi allows users to deposit supported tokens into the protocol and earn yield on them. This is made possible by lenders on the platform who borrow these tokens and pay interest on them.
+The deposit yield on marginfi is typically expressed in terms of APY (Annual Percentage Yield). Yield farming has become increasingly popular in DeFi, and marginfi is one of the lending protocols that allows users to earn yield on their deposited assets.
+The APYs for lending each asset are typically exposed in marginfi web interfaces, and can be found in protocol configuration.
+Liquidity Incentive Program (LIP) deposits
+Deposits into marginfi's LIP program may be locked up depending on the LIP campaign they're deposited to, which is available to users in each LIP campaign configuration and can only be set when a campaign is initially created.
+LIP lockup timelines cannot be adjusted after campaigns are created by anyone, including campaign creators.
+It's important to note that LIP deposits cannot be used as collateral for borrowing.
+Borrow Fees
+Borrowing on marginfi incurs a fee. Fees are denominated in each asset that marginfi supports, and usually expressed in terms of APY (Annual Percentage Yield).
+The rate is dictated by bank-specific parameters, and partially variable according to the bank's utilization rate. Parameters can be found in protocol configuration accounts (banks), and live rates are exposed through the marginfi web app.
+Liquidation Fees
+When borrowed trader positions fall below configured margin requirements, they are exposed to liquidation. Liquidations on marginfi are automatic and permissionless.
+Liquidations are executed by third-party liquidators who provide this service for a return, and marginfi awards a fee for successful liquidations.
+When borrowed positions fall below requirements and are liquidated, liquidated borrowers (a.k.a. liquidatees) are penalized through a liquidation fee. This fee amounts to 5% of the liquidated assets, and is equally distributed among:
+	•	the liquidator
+	•	the insurance fund of the bank for the liquidated token
+
+Account Health
+Every account's health is represented as a health factor. Your account health factor is a single value that encapsulates how well-collateralized your portfolio is - or, how healthy it is.
+Account health is calculated with the following formula:
+
+Account health is typically between 0% and 100%, but can technically go as low as -∞. When your account health reaches 0% or below, you are exposed to liquidation.
+
+Weighted assets and liabilities are used in account health calculations. They're explained below.
+Assets as Collateral
+When you lend an asset on marginfi, there are a few values to keep in mind when pricing the value of your collateral:
+	•	Every asset has a market USD price, as determined by its oracle.
+	•	Every asset has a confidence band-adjusted market USD price, as determined by the bottom limit of the price oracle's 95% confidence band.
+	•	Every asset has a weighted price, which is the confidence band-adjusted market USD price multiplied by the asset's deposit weight.
+Here's an example:
+	•	Let's say a price oracle supplies a market USD price for SOL of $25.
+	•	The price oracle's 95% confidence band is +/- $1, i.e. $24-26. The bottom limit of this confidence band is $24, so the confidence band-adjusted market USD price is $24.
+	•	Let's say the SOL asset weight on marginfi is 90%. We multiply the confidence band-adjusted market USD price by the asset weight, or $24 * 90%.
+	•	After all adjustments, SOL is priced at $21.60 as collateral.
+Liabilities as Borrows
+Similarly to assets, liabilities on marginfi are adjusted:
+	•	Every liability has a market USD price, as determined by its oracle. This market USD price is the same market USD price as a given token would have when being lent.
+	•	Every liability has a confidence band-adjusted market USD price, as determined by the top limit of the price oracle's 95% confidence band.
+	•	Every liability has a weighted price, which is the confidence band-adjusted market USD price multiplied by the liability's borrow weight.
+Here's an example:
+	•	Let's say a price oracle supplies a market USD price for SOL of $25.
+	•	The price oracle's 95% confidence band is +/- $1, i.e. $24-26. The top limit of this confidence band is $26, so the confidence band-adjusted market USD price is $26.
+	•	Let's say the SOL LTV on marginfi is 80%. We multiply the confidence band-adjusted market USD price by 1 / L T V    1/LTV. In this case, 1 / 0.80 = 1.25    1/0.80=1.25.
+Protocol Design
+On this page, we’ll walk you through the marginfi protocol design, such as oracle usage, the interest mechanism, and our risk management features.
+
+Oracle Usage
+marginfi primarily relies on Pyth oracle price feeds for token market prices, leveraging Pyth’s extensive safety features for a more secure understanding of token price activity and risk management. However, for assets that Pyth does not support, the protocol employs Switchboard oracles with a similar set of best practices.
+marginfi protects for price accuracy with a few key components:
+	•	Price staleness checks: Price staleness is a situation when an oracle provides price data that is out of date. To mitigate this risk, the marginfi protocol applies stricter staleness checks than both Pyth and Switchboard, defining its own maximum valid price staleness of 60 seconds.
+	•	Confidence intervals: Pyth and Switchboard publish confidence intervals with each price feed, representing possibly different prices for each asset by giving users a probability distribution over price. marginfi takes a conservative approach when calculating token prices for both assets and liabilities. For both assets and liabilities, the 95% confidence interval range is used. For assets, the lower bound of the confidence interval range is used. For liabilities, the higher bound of the confidence interval range is used.
+	•	Moving average application: To mitigate the effect of high price volatility, marginfi uses the exponential moving average price that Pyth provides. The EMA is a type of moving average that gives more weight to recent prices. In Pyth’s case, it uses a slot-weighted, inverse confidence-weighted EMA. It considers a window of 5921 slots (approximately 1 hour on Solana mainnet) and gives more weight to recent slots. Additionally, it is inverse confidence-weighted, meaning samples with tighter confidence intervals are given more weight. The formula can be expressed as:
+
+Where 
+p
+r
+i
+c
+e
+i
+price
+i
+
+
+
+, 
+s
+l
+o
+t
+i
+slot
+
+
+
+
+, and 
+c
+o
+n
+f
+i
+d
+e
+n
+c
+e
+i
+confidence
+
+
+
+
+ represent the price, slot number, and confidence interval at each 
+i
+ith slot within the considered window.
+Switchboard does not natively provide EMA pricing. Live prices are used for assets powered by switchboard oracles. As mentioned above, the same confidence interval approach is applied to Switcboard assets.
+The combination of these features enables the marginfi protocol to estimate token prices conservatively, protect against volatility and price manipulation, and provide a safer and smoother lending experience for users.
+Interest Rate Mechanism
+mrgnlend’s interest rate mechanism uses a 2-piece piecewise function that is configured per asset. It can be expressed as the following:
+
+Let’s break this equation down to simpler terms:
+	•	Utilization (x    x): This represents the current usage of the available funds in the lending pool. It is calculated as the ratio of borrowed funds to the total available funds (borrowed + unborrowed). For example, if 70% of the pool’s funds are currently lent out, the utilization is 70%.
+	•	Optimal Utilization (o    o): This is the target utilization level that the protocol aims to achieve. It’s the point where the interest rates are balanced to encourage both borrowing and lending. If the current utilization matches the optimal utilization, the system is working as intended.
+	•	Borrower Rate at Optimal Utilization (p l    pl): This is the interest rate that borrowers pay when the utilization of the pool is at the optimal level. It’s set to be attractive enough to encourage borrowing without being too high, ensuring that the pool maintains its optimal utilization.
+	•	Maximum Borrower Rate (p m    pm): This is the highest possible interest rate that borrowers will pay if the utilization goes beyond the optimal level. As more funds are borrowed and the utilization increases, the interest rate moves towards this maximum rate to manage the demand and incentivize repayments, ensuring the stability of the pool.
+Risk Management
+Risk Tiers
+mrgnlend has a concept of Asset Risk Tiers. This unique design allows for safe support of a larger array of assets, with a particular focus of supporting long-tail tokens with unpredictable liquidity. mrgnlend has three risk tiers:
+	•	Collateral Tier: This is the standard asset risk tier, similar to traditional lending protocols. Assets in this tier can be deposited, borrowed, and used as collateral within the protocol’s established limits. This tier is reserved for assets with higher liquidity.
+	•	Borrow-only Tier: This tier is reserved for assets that have a deposit weight of 0. In other words, they may be borrowed, but cannot be borrowed against.
+	•	Isolated Tier: This tier accommodates higher-risk assets. If an asset is classified under the Isolated Tier, traders can only borrow this asset (it is not supported as collateral), and when borrowed, no other assets may be borrowed in the trader’s portfolio. When borrowed, these assets are borrowed against assets in the collateral tier.
+Risk Engine
+mrgnlend’s risk engine estimates three main components to determine acceptable risk constraints:
+	•	Liquidator execution capacity: The risk engine estimates how fast liquidators can execute liquidations. This speed, or execution capacity, is primarily determined by constraints that originate from the liquidator side.
+	•	Market depth: The risk engine conservatively assumes liquidators will only continue liquidations under profitable circumstances. Price impact data is used to understand the maximum capacity liquidators are capable of offlaying into the market while remaining profitable relative to mrgnlend’s liquidator discount, which is fixed at 2.5%.
+	•	Market depth recovery time: Given a market depth and a significant buy from / sell into the market, market depth will imbalance and need time to recover to typical levels. The risk engine conservatively estimates the amount of time it takes for market depth to recover.
+
+Listing Criteria
+On this page, we will explain the criteria for listing a token on the marginfi protocol.
+
+Market Capitalization
+We typically look for tokens with a fully diluted market capitalization (FDV) of at least $20 million. A substantial market cap can be an indicator of a project's traction, adoption, and potential for long-term sustainability.
+
+Trading Volume
+To ensure sufficient liquidity for our users, we prefer listing tokens with a daily trading volume exceeding $1 million across various decentralized exchanges and liquidity pools.
+
+Liquidity Providers
+We prioritize tokens that have multiple liquidity providers, as this diversity in liquidity sources can contribute to better price stability and overall liquidity for borrowing and lending activities.
+It's important to note that these criteria serve as rough guidelines, and our team reserves the right to make listing decisions based on a comprehensive evaluation process that may include additional factors beyond the thresholds mentioned above.
+If you have any questions or suggestions regarding our token listing process, please don't hesitate to reach out to our team via our https://t.me/+jGueUak_MrRiNDg5
+
+Use Cases
+Below are some ideas for the kinds of applications you can build on the marginfi Liquidity Layer. For integrations assistance, please contact @nathanzebedee on Telegram.
+
+Yield Aggregators
+	•	Description: Create a platform that automatically shifts user funds between various lending protocols to maximize their APY.
+	•	Benefit: Users benefit from the highest possible returns on their crypto assets without needing to manually track and transfer funds.
+Decentralized Stablecoins
+	•	Description: Develop a stablecoin system that uses over-collateralized crypto loans to maintain price stability.
+	•	Benefit: Users can mint stablecoins by borrowing against their crypto assets, providing a stable medium of exchange while keeping their crypto investments intact.
+Leverage Trading Platforms
+	•	Description: Build a platform that allows users to borrow funds to increase their trading position sizes, enabling higher potential returns.
+	•	Benefit: Traders can amplify their gains by leveraging borrowed funds, while lenders earn interest on the funds provided.
+Automated Investment Advisors
+	•	Description: Design an AI-powered investment advisor that uses lending and borrowing strategies to optimize user portfolios.
+	•	Benefit: Users receive personalized investment advice that leverages borrowing and lending to balance risk and reward.
+Liquidity Pools for DeFi Exchanges
+	•	Description: Create liquidity pools that provide instant loans to decentralized exchanges, facilitating smooth and fast trades.
+	•	Benefit: Liquidity providers earn interest on their funds, while traders benefit from improved market liquidity and reduced slippage.
+Crypto Savings Accounts
+	•	Description: Offer savings accounts where users can deposit their crypto assets to earn a stable interest rate.
+	•	Benefit: Users enjoy a secure and predictable return on their crypto holdings, similar to traditional bank savings accounts.
+Flash Loan Arbitrage Bots
+	•	Description: Develop bots that use flash loans to exploit price differences across multiple exchanges, earning profits through arbitrage.
+	•	Benefit: Arbitrage bots can quickly take advantage of market inefficiencies, providing consistent returns.
+Collateralized NFT Loans
+	•	Description: Allow users to borrow against the value of their NFTs, using them as collateral for loans.
+	•	Benefit: NFT owners can unlock liquidity without having to sell their valuable digital assets.
+
+Decentralized Insurance Platforms
+	•	Description: Create insurance platforms that pool and lend funds to cover potential claims, earning interest in the process.
+	•	Benefit: Insurance pools grow their funds through lending, ensuring sufficient coverage for all members.
+
+DAO Treasury Management
+	•	Description: Enable DAOs to manage their treasuries more effectively by lending out idle funds to earn interest.
+	•	Benefit: DAOs can increase their financial sustainability by generating passive income from their reserves.
+These are just a few ideas to get you started. If you have a unique idea or need guidance, don’t hesitate to reach out to @nathanzebedee on Telegram for integration assistance!
+
+
+Frequently Asked Questions
+In this guide, we will answer commonly asked questions regarding the marginfi protocol.
+
+
+If you do not see an answer to your question on this page, please contact marginfi support by joining our Discord server.
+Can I earn points on The Arena?
+No, traders cannot earn points for the activity they conduct on The Arena.
+What are fees?
+Fees include borrowing interest, liquidation penalties and insurance fund fees.
+Borrowing interest varies on the given asset, bank configuration, and market conditions. For the latest interest rates, refer to the asset list on mrgnlend
+When borrowed positions fall below requirements and are liquidated, the borrowers (a.k.a. liquidatees) are penalized through a liquidation fee. This fee amounts to 5% of the liquidated assets and is equally distributed between the liquidator and the insurance fund of the bank for the liquidated token.
+Are there fees on flashloans?
+No, flashloans do not incur fees. Flashloans bundle multiple borrow and lend instructions into a single transaction, but the borrows that occur within the flashloan get paid back immediately so no interested can be accrued.
+Are there fees on LST?
+There are no fees for holding or acquiring LST. marginfi does not profit from LST withdrawals.
+What are marginfi points?
+marginfi points are earned by lending, borrowing, and referring new users, they quantify your contribution to the marginfi ecosystem.
+How do health factors work?
+Health factors indicate how well-collateralized your account is. A value below 0% exposes you to liquidation.
+What does the “Simulating health / liquidation impact failed” error mean?
+This error is related to stale oracles, which occur due to network congestion on Solana. When the network is congested, oracles update less frequently. Stale oracles are not the fault of marginfi. To prevent price manipulation, marginfi restricts certain actions when oracles are out-of-date.
+What does the "stale oracles" error mean?
+marginfi has chosen to use decentralized, trustless oracles. These oracles are managed by providers, like Pyth and Switchboard. During periods of blockchain congestion, oracle providers may struggle sending pricing data. If pricing data is stale during a user interaction, marginfi does not enable users to perform oracle-dependent actions. This is to prevent manipulation based on incorrect oracle prices. marginfi is working directly with Pyth, Switchboard, and Solana Labs on correcting these issues on behalf of the user.
+How many points for borrowing / lending?
+4 points for borrowing while 1 point for lending.
+Can I lend and borrow the same assets?
+No. Lending and borrowing the same assets can create a feedback loop that distorts the true supply and demand, leading to potential instability in the protocol. Additionally, it can be used to manipulate interest rates and fees, undermining the integrity of the system.
+What’s the implications of health factor?
+If value of your borrowed assets exceeds the value of your lent assets, you may be liquidated.
+Can I get points for staking SOL for LST?
+No, you may only earn points by borrowing and lending on marginfi.
+Can I borrow against my assets in isolated pools?
+No, you can't borrow against assets in isolated pools; it can't serve as collateral.
+Can I earn points for deposit in isolated pools?
+All lend and borrow assets counts for marginfi points.
+
+How much time does it take for project to move from isolated to global pool?
+Only when the asset satisfies all necessary safety requirements, will it be upgraded to the main pool.
+
+How do I unstake my LST?
+Visit unstake.it or sanctum.so and swap LST for SOL.
+
+What are social points?
+Social points is for social campaigns in collaboration with other ecosystem projects.
+
+How long can i borrow and lend?
+As long as your health factor stays above 0%.
