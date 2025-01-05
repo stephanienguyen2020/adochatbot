@@ -4,6 +4,15 @@ An intelligent chatbot designed to help users navigate MarginFi's platform and u
 
 > **📝 Note:** RAG (Retrieval Augmented Generation) enhances the AI's responses by pulling relevant information from MarginFi's documentation in real-time. This means the chatbot provides accurate, up-to-date answers specific to MarginFi's platform, rather than relying solely on GPT-4's general knowledge.
 
+## 🎯 Demo
+
+<video width="100%" controls>
+  <source src="./public/MarginFiDemo.mov" type="video/quicktime">
+  Your browser does not support the video tag.
+</video>
+
+> **Note:** Watch the demo to see the chatbot in action, featuring real-time responses, markdown formatting, and seamless user interactions.
+
 ## 🎯 Problem Statement
 
 ![MarginFi Documentation Search Problem](./public/problem.png)
