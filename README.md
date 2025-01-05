@@ -101,11 +101,14 @@ pnpm install
 
 3. Set up your environment variables:
    - Copy `.env.sample` to `.env.local`
-   - Add your OpenAI API key to `.env.local`:
+   - Add your API keys to `.env.local`:
 
 ```bash
 OPENAI_API_KEY=your_api_key_here
+LANGCHAIN_API_KEY=your_langchain_api_key_here
 ```
+
+> **Note:** The LangChain API key is required for tracing and monitoring your RAG pipeline. You can get it from [LangSmith](https://smith.langchain.com/).
 
 4. Run the development server:
 
