@@ -60,12 +60,33 @@ My AI Chatbot addresses these challenges by providing:
 - **Responsive Design**: Works seamlessly on all devices
 - **Accessibility**: WCAG 2.1 compliant
 
-## 🚀 Getting Started
+## 🚀 Technology Stack
+
+![Next.js](https://img.shields.io/badge/Next.js%2014-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![OpenAI](https://img.shields.io/badge/GPT--4-412991?style=for-the-badge&logo=openai&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-3178C6?style=for-the-badge&logo=chainlink&logoColor=white)
+
+### Development Tools
+
+![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
+![Prettier](https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black)
+![npm](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+
+### AI & Data
+
+![OpenAI Embeddings](https://img.shields.io/badge/OpenAI%20Embeddings-412991?style=for-the-badge&logo=openai&logoColor=white)
+![Vector Store](https://img.shields.io/badge/Vector%20Store-000000?style=for-the-badge&logo=database&logoColor=white)
+![RAG](https://img.shields.io/badge/RAG-FF6B6B?style=for-the-badge&logo=buffer&logoColor=white)
+
+## 📁 Getting Started
 
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/stephanienguyen2020/marginfi_chatbot
 ```
 
 2. Install dependencies:
@@ -165,6 +186,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Link Processing**: Extract and understand content from shared URLs during conversations
 - **PDF Document Support**: Process uploaded PDF documents for context-aware responses
 - **Multi-Source Integration**: Combine information from multiple documentation sources
+- **Advanced Vector Storage**:
+  - Replace MemoryStore with MongoDB Atlas Search for better scalability
+  - Improved semantic search capabilities
+  - Persistent storage for embeddings
+  - Better handling of large document collections
 
 ### 🤖 Advanced AI Features
 
