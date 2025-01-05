@@ -6,13 +6,14 @@ An intelligent chatbot designed to help users navigate MarginFi's platform and u
 
 ## 🎯 Problem Statement
 
-Currently, MarginFi's website has limited search capabilities:
+- ![MarginFi Documentation Search Problem](./public/problem.png)
+- Currently, MarginFi's website has limited search capabilities:
 
-- Search is restricted to FAQ pages only
-- Requires exact keyword matching
-- Limited support for natural language questions
-- New users struggle to find basic information about MarginFi
-- Difficult for beginners to understand DeFi concepts
+* Search is restricted to FAQ pages only
+* Requires exact keyword matching
+* Limited support for natural language questions
+* New users struggle to find basic information about MarginFi
+* Difficult for beginners to understand DeFi concepts
 
 ## 💡 Solution
 
