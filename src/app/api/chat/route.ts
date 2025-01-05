@@ -13,8 +13,9 @@ import {
 } from "@langchain/core/messages";
 import { vectorStore, initializeVectorStore } from "@/lib/vectorstore";
 import { toolsCondition } from "@langchain/langgraph/prebuilt";
-import { SYSTEM_PROMPT } from "@prompts";
+import { SYSTEM_PROMPT, RESPONSE_GUIDELINES } from "@prompts";
 import { NextRequest, NextResponse } from "next/server";
+import { OpenAI } from "openai";
 
 // Initialize the vector store when the API route module loads
 initializeVectorStore().catch(console.error);
@@ -68,7 +69,12 @@ async function generate(state: typeof MessagesAnnotation.State) {
     .filter((msg): msg is ToolMessage => msg instanceof ToolMessage);
 
   const docsContent = recentToolMessages.map((doc) => doc.content).join("\n");
-  const systemMessageContent = `${SYSTEM_PROMPT}\n\nContext:\n${docsContent}`;
+  const systemMessageContent = `${SYSTEM_PROMPT}
+
+Context:
+${docsContent}
+
+${RESPONSE_GUIDELINES}`;
 
   const conversationMessages = state.messages.filter(
     (message) =>
@@ -114,6 +120,11 @@ function generateThreadId() {
   return `thread_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 }
 
+// Initialize OpenAI for streaming
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 export async function POST(req: NextRequest) {
   try {
     const { message, threadId = generateThreadId() } = await req.json();
@@ -125,9 +136,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const encoder = new TextEncoder();
-
-    // Invoke the RAG chain with thread configuration
+    // First, get context using RAG
     const result = await ragChain.invoke(
       {
         messages: [new HumanMessage(message)],
@@ -138,20 +147,69 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    // Get the final AI response
+    // Get retrieved context from the final response
     const finalResponse = result.messages[result.messages.length - 1];
+    const context = finalResponse.content;
 
+    const encoder = new TextEncoder();
+    let fullResponse = "";
+
+    // Create streaming response with context
     const readableStream = new ReadableStream({
-      start(controller) {
-        const sseData = JSON.stringify({
-          message: {
-            content: { parts: [finalResponse.content] },
-          },
-          threadId,
-        });
+      async start(controller) {
+        try {
+          const completion = await openai.chat.completions.create({
+            model: "gpt-4",
+            messages: [
+              {
+                role: "system",
+                content: `${SYSTEM_PROMPT}\n\nContext:\n${context}\n\n${RESPONSE_GUIDELINES}`,
+              },
+              { role: "user", content: message },
+            ],
+            stream: true,
+          });
 
-        controller.enqueue(encoder.encode(`data: ${sseData}\n\n`));
-        controller.close();
+          for await (const chunk of completion) {
+            try {
+              const content = chunk.choices[0].delta?.content || "";
+              fullResponse += content;
+
+              // Enhanced formatting
+              const formattedResponse = fullResponse
+                .replace(/\n?• /g, "\n\n• ") // Add double newline before bullets
+                .replace(/\*\*(.*?)\*\*/g, "**$1**") // Preserve bold markdown
+                .replace(/(?<=[.!?])\s+(?=[A-Z])/g, "\n\n") // Add double newline after sentences that end a paragraph
+                .replace(/([.!?])\s+Would you like/, "$1\n\nWould you like") // Ensure final question is on new line
+                .replace(/\n{3,}/g, "\n\n") // Normalize multiple newlines to double newlines
+                .replace(/^(.+?)(?=\n\n|$)/, "**$1**") // Make first paragraph bold
+                .trim();
+
+              const sseData = JSON.stringify({
+                message: {
+                  content: { parts: [formattedResponse] },
+                },
+                threadId,
+              });
+
+              controller.enqueue(encoder.encode(`data: ${sseData}\n\n`));
+
+              if (chunk.choices[0].finish_reason === "stop") {
+                controller.close();
+                break;
+              }
+            } catch (err) {
+              console.error("Error processing chunk:", err);
+              controller.error(err);
+              break;
+            }
+          }
+        } catch (err) {
+          console.error("Error in OpenAI stream:", err);
+          controller.error(err);
+        } finally {
+          controller.close();
+        }
       },
     });
 

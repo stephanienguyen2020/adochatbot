@@ -7,10 +7,12 @@ import {
   Send,
   Maximize2,
   Minimize2,
+  Minus,
   Paperclip,
   Mic,
   Moon,
   Sun,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
@@ -39,6 +41,7 @@ export function FloatingChatbot() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -136,9 +139,9 @@ export function FloatingChatbot() {
   };
 
   const suggestedQuestions = [
-    "Generate Summary",
-    "Are they a good fit for my job post?",
-    "What is their training style?",
+    "What is MarginFi?",
+    "What makes MarginFi different?",
+    "Is my crypto safe on MarginFi?",
   ];
 
   const handleFileButtonClick = () => {
@@ -259,6 +262,8 @@ export function FloatingChatbot() {
 
   const renderMessage = (message: Message) => {
     const isEditing = message.id === editingMessageId;
+    const isThinking =
+      message.sender === "bot" && message.text === "" && isStreaming;
 
     return (
       <Message
@@ -270,6 +275,7 @@ export function FloatingChatbot() {
         onSaveEdit={handleSaveEdit}
         onEditMessage={handleEditMessage}
         onCopyMessage={handleCopyMessage}
+        isThinking={isThinking}
       />
     );
   };
@@ -324,6 +330,14 @@ export function FloatingChatbot() {
     </div>
   );
 
+  const clearChatHistory = () => {
+    setMessages([]);
+    setInputText("");
+    setSelectedFile(null);
+    setIsMinimized(true);
+    setIsOpen(false);
+  };
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
       <style jsx global>{`
@@ -350,7 +364,7 @@ export function FloatingChatbot() {
           background: #888;
         }
       `}</style>
-      {isOpen ? (
+      {isOpen && !isMinimized ? (
         <Card
           className={`${
             isExpanded ? "fixed inset-4" : "w-[400px]"
@@ -392,10 +406,15 @@ export function FloatingChatbot() {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
-                onClick={() => {
-                  setIsOpen(false);
-                  setIsExpanded(false);
-                }}
+                onClick={() => setIsMinimized(true)}
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={clearChatHistory}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -414,7 +433,7 @@ export function FloatingChatbot() {
                   <div className="w-16 h-16 rounded-full bg-[#DAFF2F] animate-pulse shadow-lg shadow-[#DAFF2F]/50" />
                 </div>
                 <p className="text-center text-muted-foreground dark:text-gray-400">
-                  What do you want to know about James?
+                  Tell me about MarginFi
                 </p>
                 <div className="flex flex-col items-end w-full space-y-2">
                   {suggestedQuestions.map((question, index) => (
@@ -430,12 +449,15 @@ export function FloatingChatbot() {
                       {question}
                     </Button>
                   ))}
-                  <Button
-                    variant="ghost"
-                    className="text-muted-foreground hover:text-foreground dark:text-gray-400 dark:hover:text-white"
+                  <a
+                    href="https://docs.marginfi.com/faqs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-foreground dark:text-gray-400 dark:hover:text-white flex items-center gap-2 text-sm mt-2 cursor-pointer"
                   >
                     Show more
-                  </Button>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
                 </div>
               </>
             ) : (
@@ -473,11 +495,14 @@ export function FloatingChatbot() {
         </Card>
       ) : (
         <>
-          {!isOpen && !isExpanded && (
+          {(!isOpen || isMinimized) && (
             <Button
               size="icon"
               className="h-12 w-12 rounded-full bg-[#DAFF2F] hover:bg-[#DAFF2F]/90 shadow-lg text-black"
-              onClick={() => setIsOpen(true)}
+              onClick={() => {
+                setIsOpen(true);
+                setIsMinimized(false);
+              }}
             >
               <Sparkles className="h-6 w-6" />
             </Button>

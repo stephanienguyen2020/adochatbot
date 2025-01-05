@@ -1,6 +1,8 @@
+import ReactMarkdown from "react-markdown";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Copy, Pencil } from "lucide-react";
+import { ThinkingDots } from "./ThinkingDots";
 
 export interface MessageProps {
   message: {
@@ -14,6 +16,7 @@ export interface MessageProps {
   onSaveEdit: (id: number) => void;
   onEditMessage: (id: number) => void;
   onCopyMessage: (text: string) => void;
+  isThinking?: boolean;
 }
 
 export function Message({
@@ -24,6 +27,7 @@ export function Message({
   onSaveEdit,
   onEditMessage,
   onCopyMessage,
+  isThinking = false,
 }: MessageProps) {
   const wordCount = message.text.trim().split(/\s+/).length;
   const isShortMessage = wordCount < 7;
@@ -72,7 +76,29 @@ export function Message({
     <div className={containerClasses}>
       <div className="group relative">
         <div className={messageClasses}>
-          {message.text}
+          {message.sender === "bot" ? (
+            isThinking ? (
+              <div className="min-h-[24px] flex items-center">
+                <ThinkingDots />
+              </div>
+            ) : (
+              <ReactMarkdown
+                components={{
+                  p: ({ children }) => <p className="mb-4">{children}</p>,
+                  strong: ({ children }) => (
+                    <strong className="font-bold">{children}</strong>
+                  ),
+                  li: ({ children }) => (
+                    <li className="ml-4 mb-2">• {children}</li>
+                  ),
+                }}
+              >
+                {message.text}
+              </ReactMarkdown>
+            )
+          ) : (
+            message.text
+          )}
           {message.sender === "user" && (
             <div className="absolute bottom-0 right-0 flex -mb-6 opacity-0 transition-opacity group-hover:opacity-100 bg-background/50 dark:bg-background/50 rounded-full">
               <Button
