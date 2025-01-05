@@ -6,7 +6,8 @@ An intelligent chatbot designed to help users navigate MarginFi's platform and u
 
 ## 🎯 Problem Statement
 
-- ![MarginFi Documentation Search Problem](./public/problem.png)
+![MarginFi Documentation Search Problem](./public/problem.png)
+
 - Currently, MarginFi's website has limited search capabilities:
 
 * Search is restricted to FAQ pages only
