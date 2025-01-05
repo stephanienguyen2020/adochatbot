@@ -18,7 +18,7 @@ An intelligent chatbot designed to help users navigate MarginFi's platform and u
 
 ## 💡 Solution
 
-Our AI Chatbot addresses these challenges by providing:
+My AI Chatbot addresses these challenges by providing:
 
 - Natural language understanding with MarginFi-specific context
 - Real-time, conversational responses
@@ -100,11 +100,24 @@ pnpm dev
 
 ## 💻 Technology Stack
 
-- **Framework**: Next.js 14 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **AI Integration**: OpenAI GPT-4 with RAG
-- **UI Components**: Custom modern components
+![Next.js](https://img.shields.io/badge/Next.js%2014-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![OpenAI](https://img.shields.io/badge/GPT--4-412991?style=for-the-badge&logo=openai&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-3178C6?style=for-the-badge&logo=chainlink&logoColor=white)
+
+### Development Tools
+
+![ESLint](https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
+![Prettier](https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black)
+![npm](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+
+### AI & Data
+
+![OpenAI Embeddings](https://img.shields.io/badge/OpenAI%20Embeddings-412991?style=for-the-badge&logo=openai&logoColor=white)
+![Vector Store](https://img.shields.io/badge/Vector%20Store-000000?style=for-the-badge&logo=database&logoColor=white)
+![RAG](https://img.shields.io/badge/RAG-FF6B6B?style=for-the-badge&logo=buffer&logoColor=white)
 
 ## 📁 Project Structure
 
@@ -113,14 +126,21 @@ src/
 ├── app/
 │   ├── api/
 │   │   └── chat/
-│   │       └── route.ts    # API endpoint for chat
+│   │       ├── route.ts    # API endpoint for chat
+│   │       └── prompts.ts  # System and response guidelines
 │   └── page.tsx            # Main page
 ├── components/
 │   ├── FloatingChatbot.tsx # Main chat interface
 │   ├── Message.tsx         # Message component
+│   ├── ThinkingDots.tsx    # Loading animation component
 │   └── ui/                 # UI components
 ├── hooks/
 │   └── useChat.ts          # Chat logic and state management
+├── lib/
+│   ├── documentLoader.ts   # RAG document loading utilities
+│   ├── ragChain.ts        # LangChain RAG implementation
+│   ├── vectorstore.ts     # Vector storage for embeddings
+│   └── utils.ts           # Shared utility functions
 └── types/
     └── global.d.ts         # TypeScript declarations
 ```
@@ -136,3 +156,60 @@ src/
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🚀 Future Enhancements & Roadmap
+
+### 🔍 Enhanced RAG Capabilities
+
+- **Dynamic Web Scraping**: Fetch real-time data from MarginFi's documentation website
+- **Link Processing**: Extract and understand content from shared URLs during conversations
+- **PDF Document Support**: Process uploaded PDF documents for context-aware responses
+- **Multi-Source Integration**: Combine information from multiple documentation sources
+
+### 🤖 Advanced AI Features
+
+- **Multi-Agent System**:
+
+  - Specialized agents for different tasks (technical support, DeFi education, etc.)
+  - Agent collaboration for complex queries
+  - Automatic agent selection based on user needs
+
+- **Enhanced Learning**:
+  - Learn from user interactions to improve responses
+  - Build a knowledge base of common queries and solutions
+  - Adaptive response style based on user preferences
+
+### 🛠️ Technical Improvements
+
+- **Performance Optimization**:
+
+  - Faster response times through caching
+  - Improved context retrieval algorithms
+  - Better memory management for long conversations
+
+- **Integration Features**:
+  - Direct wallet connection support
+  - Real-time market data integration
+  - Transaction simulation capabilities
+
+### 👥 User Experience
+
+- **Personalization**:
+
+  - User preference remembering
+  - Customizable UI themes
+  - Saved conversation history
+
+- **Accessibility**:
+  - Enhanced screen reader support
+  - Keyboard navigation improvements
+  - Multi-language support
+
+> **Note:** This roadmap is dynamic and will be updated based on user feedback and platform needs.
+
+### Key Components
+
+- **API Layer**: Handles chat interactions and RAG integration
+- **UI Components**: Modular components for the chat interface
+- **RAG System**: Document processing and retrieval pipeline
+- **State Management**: Custom hooks for chat functionality
