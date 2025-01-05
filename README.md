@@ -6,9 +6,8 @@ An intelligent chatbot designed to help users navigate MarginFi's platform and u
 
 ## 🎯 Demo
 
-![MarginFi Demo](https://github.com/user-attachments/assets/52c85de8-b5cd-482a-8ee3-04f487d54935)
+https://github.com/user-attachments/assets/fbe74a81-1580-40bd-9674-03c6e2962a24
 
-> **Note:** Watch the demo to see the chatbot in action, featuring real-time responses, markdown formatting, and seamless user interactions.
 
 ## 🎯 Problem Statement
 
