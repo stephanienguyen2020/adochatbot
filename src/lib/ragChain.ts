@@ -11,13 +11,9 @@ import {
   SystemMessage,
   ToolMessage,
 } from "@langchain/core/messages";
-import { vectorStore, initializeVectorStore } from "@/lib/vectorstore";
+import { vectorStore } from "./vectorstore";
 import { toolsCondition } from "@langchain/langgraph/prebuilt";
 import { SYSTEM_PROMPT } from "@prompts";
-import { NextRequest, NextResponse } from "next/server";
-
-// Initialize the vector store when the API route module loads
-initializeVectorStore().catch(console.error);
 
 // Initialize the LLM
 const llm = new ChatOpenAI({
@@ -54,10 +50,7 @@ const agent = createReactAgent({
 // Step 1: Agent planning and execution
 async function agentStep(state: typeof MessagesAnnotation.State) {
   const response = await agent.invoke(state.messages);
-  // Ensure we return an object with a messages array
-  return {
-    messages: Array.isArray(response) ? response : [response],
-  };
+  return { messages: [response] };
 }
 
 // Step 2: Generate final response
@@ -90,83 +83,32 @@ async function generate(state: typeof MessagesAnnotation.State) {
 const graphBuilder = new StateGraph(MessagesAnnotation)
   .addNode("agent", agentStep)
   .addNode("generate", generate)
-  .addEdge("__start__", "generate") // Start directly with generate
-  .addConditionalEdges("generate", toolsCondition, {
+  .addEdge("__start__", "agent")
+  .addConditionalEdges("agent", toolsCondition, {
     __end__: "__end__",
     agent: "agent",
   })
-  .addEdge("agent", "generate");
+  .addEdge("agent", "generate")
+  .addEdge("generate", "__end__");
 
 // Create memory saver for chat history
 const checkpointer = new MemorySaver();
 
 // Compile graph with memory
-const ragChain = graphBuilder.compile({ checkpointer });
+export const ragChain = graphBuilder.compile({ checkpointer });
 
 // Thread configuration for chat history
-const threadConfig = {
+export const threadConfig = {
   configurable: { thread_id: "default" },
   streamMode: "values" as const,
 };
 
 // Helper function to create a new thread ID
-function generateThreadId() {
+export function generateThreadId() {
   return `thread_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const { message, threadId = generateThreadId() } = await req.json();
-
-    if (!message) {
-      return NextResponse.json(
-        { error: "Message is required" },
-        { status: 400 }
-      );
-    }
-
-    const encoder = new TextEncoder();
-
-    // Invoke the RAG chain with thread configuration
-    const result = await ragChain.invoke(
-      {
-        messages: [new HumanMessage(message)],
-      },
-      {
-        ...threadConfig,
-        configurable: { thread_id: threadId },
-      }
-    );
-
-    // Get the final AI response
-    const finalResponse = result.messages[result.messages.length - 1];
-
-    const readableStream = new ReadableStream({
-      start(controller) {
-        const sseData = JSON.stringify({
-          message: {
-            content: { parts: [finalResponse.content] },
-          },
-          threadId,
-        });
-
-        controller.enqueue(encoder.encode(`data: ${sseData}\n\n`));
-        controller.close();
-      },
-    });
-
-    return new NextResponse(readableStream, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-      },
-    });
-  } catch (error) {
-    console.error("API route error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
+// Helper function to get chat history
+export async function getChatHistory(threadId: string) {
+  return await checkpointer.get({ configurable: { thread_id: threadId } });
 }
