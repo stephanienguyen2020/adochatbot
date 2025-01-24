@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
   X,
-  Sparkles,
   Send,
   Maximize2,
   Minimize2,
@@ -14,6 +13,7 @@ import {
   Sun,
   ExternalLink,
 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "./ui/button";
 import { Card, CardHeader, CardContent, CardFooter } from "./ui/card";
 import { Input } from "./ui/input";
@@ -139,9 +139,9 @@ export function FloatingChatbot() {
   };
 
   const suggestedQuestions = [
-    "What is MarginFi?",
-    "What makes MarginFi different?",
-    "Is my crypto safe on MarginFi?",
+    "What is Andromeda?",
+    "What makes Andromeda different?",
+    "Is my crypto safe on Andromeda?",
   ];
 
   const handleFileButtonClick = () => {
@@ -310,7 +310,7 @@ export function FloatingChatbot() {
           className={cn(
             "h-full px-3 dark:hover:bg-gray-800 transition-colors duration-150",
             {
-              "text-[#DAFF2F]": isSpeaking,
+              "text-[#f8a12d]": isSpeaking,
               "text-muted-foreground": !isSpeaking && isListening,
             }
           )}
@@ -372,7 +372,13 @@ export function FloatingChatbot() {
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#DAFF2F]" />
+              <Image
+                src="/ado_logo.svg"
+                alt="ADO Logo"
+                width={20}
+                height={20}
+                className="w-5 h-5"
+              />
               <h4 className="font-semibold text-lg dark:text-white">
                 AI Assist
               </h4>
@@ -430,17 +436,17 @@ export function FloatingChatbot() {
             {messages.length === 0 ? (
               <>
                 <div className="flex justify-center py-8">
-                  <div className="w-16 h-16 rounded-full bg-[#DAFF2F] animate-pulse shadow-lg shadow-[#DAFF2F]/50" />
+                  <div className="w-16 h-16 rounded-full bg-[#f8a12d] animate-pulse shadow-lg shadow-[#f8a12d]/50" />
                 </div>
                 <p className="text-center text-muted-foreground dark:text-gray-400">
-                  Tell me about MarginFi
+                  Tell me about Andromeda
                 </p>
                 <div className="flex flex-col items-end w-full space-y-2">
                   {suggestedQuestions.map((question, index) => (
                     <Button
                       key={index}
                       variant="outline"
-                      className="max-w-[300px] justify-start text-left h-auto py-2 px-4 hover:bg-[#DAFF2F]/10 dark:border-gray-700 dark:text-white dark:hover:bg-[#DAFF2F]/5"
+                      className="max-w-[300px] justify-start text-left h-auto py-2 px-4 hover:bg-[#0066FF]/10 dark:border-gray-700 dark:text-white dark:hover:bg-[#0066FF]/5"
                       onClick={() => {
                         setInputText(question);
                         handleSendMessage();
@@ -450,7 +456,7 @@ export function FloatingChatbot() {
                     </Button>
                   ))}
                   <a
-                    href="https://docs.marginfi.com/faqs"
+                    href="https://docs.andromedaprotocol.io/andromeda"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-foreground dark:text-gray-400 dark:hover:text-white flex items-center gap-2 text-sm mt-2 cursor-pointer"
@@ -498,13 +504,19 @@ export function FloatingChatbot() {
           {(!isOpen || isMinimized) && (
             <Button
               size="icon"
-              className="h-12 w-12 rounded-full bg-[#DAFF2F] hover:bg-[#DAFF2F]/90 shadow-lg text-black"
+              className="h-12 w-12 rounded-full bg-[#000000] hover:bg-[#ffffff]/90 shadow-lg text-white"
               onClick={() => {
                 setIsOpen(true);
                 setIsMinimized(false);
               }}
             >
-              <Sparkles className="h-6 w-6" />
+              <Image
+                src="/ado_logo.svg"
+                alt="ADO Logo"
+                width={24}
+                height={24}
+                className="h-6 w-6"
+              />
             </Button>
           )}
         </>

@@ -1,33 +1,30 @@
-# 🤖 MarginFi AI Assistant
+# 🤖 Andromeda AI Assistant
 
-An intelligent chatbot designed to help users navigate MarginFi's platform and understand DeFi concepts. Powered by GPT-4 and RAG (Retrieval Augmented Generation), this AI assistant provides context-aware, real-time responses with a sleek, modern interface.
+An intelligent chatbot designed to help users navigate Andromeda's platform and understand DeFi concepts. Powered by GPT-4 and RAG (Retrieval Augmented Generation), this AI assistant provides context-aware, real-time responses with a sleek, modern interface.
 
-> **📝 Note:** RAG (Retrieval Augmented Generation) enhances the AI's responses by pulling relevant information from MarginFi's documentation in real-time. This means the chatbot provides accurate, up-to-date answers specific to MarginFi's platform, rather than relying solely on GPT-4's general knowledge.
+> **📝 Note:** RAG (Retrieval Augmented Generation) enhances the AI's responses by pulling relevant information from Andromeda's documentation in real-time. This means the chatbot provides accurate, up-to-date answers specific to Andromeda's platform, rather than relying solely on GPT-4's general knowledge.
 
 ## 🎯 Demo
 
 https://github.com/user-attachments/assets/fbe74a81-1580-40bd-9674-03c6e2962a24
 
-
 ## 🎯 Problem Statement
 
-![MarginFi Documentation Search Problem](./public/problem.png)
-
-Currently, MarginFi's website has limited search capabilities:
+Currently, Andromeda's website has limited search capabilities:
 
 - Search is restricted to FAQ pages only
 - Requires exact keyword matching
 - Limited support for natural language questions
-- New users struggle to find basic information about MarginFi
+- New users struggle to find basic information about Andromeda
 - Difficult for beginners to understand DeFi concepts
 
 ## 💡 Solution
 
 My AI Chatbot addresses these challenges by providing:
 
-- Natural language understanding with MarginFi-specific context
+- Natural language understanding with Andromeda-specific context
 - Real-time, conversational responses
-- RAG-powered accurate information about MarginFi and DeFi
+- RAG-powered accurate information about Andromeda and DeFi
 - Beginner-friendly explanations
 - Instant access to platform navigation help
 
@@ -38,7 +35,7 @@ My AI Chatbot addresses these challenges by providing:
 - **Sleek Interface**: Built with modern design principles
 - **Responsive Layout**: Adapts perfectly to any device
 - **Smooth Animations**: Polished user interactions
-- **Custom Theming**: Matches MarginFi's brand identity
+- **Custom Theming**: Matches Andromeda's brand identity
 
 ### 🎯 User-Focused Interface
 
@@ -58,7 +55,7 @@ My AI Chatbot addresses these challenges by providing:
 
 ## 🛠️ Technical Features
 
-- **GPT-4 + RAG Integration**: Context-aware responses using MarginFi's documentation
+- **GPT-4 + RAG Integration**: Context-aware responses using Andromeda's documentation
 - **Real-Time Streaming**: Instant response generation
 - **Server-Sent Events**: Efficient data transmission
 - **Modern Stack**: Next.js 14, TypeScript, Tailwind CSS
@@ -91,7 +88,7 @@ My AI Chatbot addresses these challenges by providing:
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/stephanienguyen2020/marginfi_chatbot
+git clone https://github.com/yourusername/andromeda-chatbot
 ```
 
 2. Install dependencies:
@@ -178,7 +175,7 @@ src/
 
 ### 🔍 Enhanced RAG Capabilities
 
-- **Dynamic Web Scraping**: Fetch real-time data from MarginFi's documentation website
+- **Dynamic Web Scraping**: Fetch real-time data from Andromeda's documentation website
 - **Link Processing**: Extract and understand content from shared URLs during conversations
 - **PDF Document Support**: Process uploaded PDF documents for context-aware responses
 - **Multi-Source Integration**: Combine information from multiple documentation sources
