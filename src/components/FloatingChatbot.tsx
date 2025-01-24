@@ -195,10 +195,20 @@ export function FloatingChatbot() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
+        let errorMessage = "An error occurred. Please try again later.";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // If JSON parsing fails, use the default error message
+        }
+
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.id === botMessageId ? { ...msg, text: errorMessage } : msg
+          )
         );
+        return;
       }
 
       if (!response.body) {

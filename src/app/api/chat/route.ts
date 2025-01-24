@@ -40,7 +40,8 @@ const retrieve = tool(
   },
   {
     name: "retrieve",
-    description: "Retrieve information about MarginFi related to a query.",
+    description:
+      "Retrieve information about Andromeda Protocol and ADOs from documentation.",
     schema: retrieveSchema,
     responseFormat: "content_and_artifact",
   }
@@ -127,7 +128,7 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, threadId = generateThreadId() } = await req.json();
+    const { message } = await req.json();
 
     if (!message) {
       return NextResponse.json(
@@ -136,92 +137,44 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // First, get context using RAG
+    // Initialize vector store if needed
+    await initializeVectorStore().catch((error) => {
+      console.error("Vector store initialization failed:", error);
+      throw new Error("Failed to initialize vector store");
+    });
+
+    // Use the RAG chain instead of direct LLM
     const result = await ragChain.invoke(
       {
         messages: [new HumanMessage(message)],
       },
       {
-        ...threadConfig,
-        configurable: { thread_id: threadId },
+        configurable: { thread_id: generateThreadId() },
       }
     );
 
-    // Get retrieved context from the final response
+    // Get the final response
     const finalResponse = result.messages[result.messages.length - 1];
-    const context = finalResponse.content;
 
-    const encoder = new TextEncoder();
-    let fullResponse = "";
-
-    // Create streaming response with context
-    const readableStream = new ReadableStream({
-      async start(controller) {
-        try {
-          const completion = await openai.chat.completions.create({
-            model: "gpt-4",
-            messages: [
-              {
-                role: "system",
-                content: `${SYSTEM_PROMPT}\n\nContext:\n${context}\n\n${RESPONSE_GUIDELINES}`,
-              },
-              { role: "user", content: message },
-            ],
-            stream: true,
-          });
-
-          for await (const chunk of completion) {
-            try {
-              const content = chunk.choices[0].delta?.content || "";
-              fullResponse += content;
-
-              // Enhanced formatting
-              const formattedResponse = fullResponse
-                .replace(/\n?• /g, "\n\n• ") // Add double newline before bullets
-                .replace(/\*\*(.*?)\*\*/g, "**$1**") // Preserve bold markdown
-                .replace(/(?<=[.!?])\s+(?=[A-Z])/g, "\n\n") // Add double newline after sentences that end a paragraph
-                .replace(/([.!?])\s+Would you like/, "$1\n\nWould you like") // Ensure final question is on new line
-                .replace(/\n{3,}/g, "\n\n") // Normalize multiple newlines to double newlines
-                .replace(/^(.+?)(?=\n\n|$)/, "**$1**") // Make first paragraph bold
-                .trim();
-
-              const sseData = JSON.stringify({
-                message: {
-                  content: { parts: [formattedResponse] },
-                },
-                threadId,
-              });
-
-              controller.enqueue(encoder.encode(`data: ${sseData}\n\n`));
-
-              if (chunk.choices[0].finish_reason === "stop") {
-                controller.close();
-                break;
-              }
-            } catch (err) {
-              console.error("Error processing chunk:", err);
-              controller.error(err);
-              break;
-            }
-          }
-        } catch (err) {
-          console.error("Error in OpenAI stream:", err);
-          controller.error(err);
-        } finally {
-          controller.close();
-        }
-      },
-    });
-
-    return new NextResponse(readableStream, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-      },
-    });
+    // Return the response
+    return new NextResponse(
+      `data: ${JSON.stringify({
+        message: {
+          content: {
+            parts: [finalResponse.content],
+          },
+        },
+      })}\n\n`,
+      {
+        headers: {
+          "Content-Type": "text/event-stream",
+          Connection: "keep-alive",
+          "Cache-Control": "no-cache, no-transform",
+        },
+      }
+    );
   } catch (error) {
-    console.error("API route error:", error);
+    console.error("Chat API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

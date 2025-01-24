@@ -1,5 +1,5 @@
 {
-  "name": "marginfi",
+  "name": "andromeda-chatbot",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,8 +10,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@langchain/community": "^0.3.22",
-    "@langchain/core": "^0.3.27",
+    "@langchain/community": "^0.3.26",
+    "@langchain/core": "^0.3.33",
     "@langchain/langgraph": "^0.2.39",
     "@langchain/openai": "^0.3.16",
     "@langchain/textsplitters": "^0.1.0",
@@ -23,6 +23,7 @@
     "lucide-react": "^0.469.0",
     "next": "15.1.3",
     "openai": "^4.77.3",
+    "playwright": "^1.50.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^9.0.1",
