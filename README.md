@@ -6,7 +6,7 @@ An intelligent chatbot designed to help users navigate Andromeda's platform and 
 
 ## 🎯 Demo
 
-https://github.com/user-attachments/assets/fbe74a81-1580-40bd-9674-03c6e2962a24
+https://github.com/user-attachments/assets/26dc3620-5383-459f-b945-7f8c4e629273
 
 ## 🎯 Problem Statement
 
